@@ -1,0 +1,23 @@
+{
+  "name": "nicopan",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "alipay-sdk": "^3.0.8",
+    "koa": "^2.11.0",
+    "koa-bodyparser": "^4.2.1",
+    "koa-router": "^7.4.0",
+    "koa-session": "^5.12.3",
+    "koa-static-cache": "^5.1.2",
+    "koa2-cors": "^2.0.6",
+    "mysql2": "^2.0.2",
+    "svg-captcha": "^1.4.0"
+  }
+}
