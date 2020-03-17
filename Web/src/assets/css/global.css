@@ -41,3 +41,16 @@ html,body,#app{
 .ql-editor{
     min-height: 300px;
 }
+.el-menu{
+    border: 0;
+}
+.el-button:hover{
+    background-color: #f7f7f7;
+    border-color: #e6e6e6;
+    color: black;
+}
+.el-button:focus{
+    background-color: #f7f7f7;
+    border-color: black;
+    color: black;
+}

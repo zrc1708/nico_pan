@@ -6,6 +6,8 @@
     const Bodyparser = require('koa-bodyparser');//加载body解析依赖
     const cors = require('koa2-cors')//引入跨域依赖
     const session = require('koa-session');
+    
+    const jwt = require('jsonwebtoken')
 
     const app = new Koa(); //类似于实例化
 
@@ -25,12 +27,29 @@
     app.use(Bodyparser());//解析body,也就是post传参
     app.use(cors());//解决跨域问题
 
-
-    
+    app.use(async(ctx, next)=> {
+        var token = ctx.headers.authorization;
+        if (ctx.request.url==='/getuser') {
+            return await next();
+        }else if(token == undefined){
+            return ctx.body={
+                message:"请先登录",
+                code:400
+            }
+        }else{
+            jwt.verify(token,'niconiconi',(error,decoded)=>{
+                if(error){
+                    console.log(error)
+                    return error
+                }
+                console.log("校验",decoded)
+            })
+            await next();
+        }
+    })
 
     const router1 = require('./router.js')
     const router3 = require('./code.js')
-
 
     app.use(router1.routes());//挂载路由
     app.use(router3.routes());
