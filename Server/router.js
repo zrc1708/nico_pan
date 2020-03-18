@@ -22,16 +22,25 @@ const router1 = new Router()
         const connection = await Mysql.createConnection(mysql_nico)
         const sql = `SELECT * FROM user where username = '${username}' and password= '${password}'`;
         const [rs] = await connection.query(sql);
-        let userToken = {
-            username,
-            id: rs[0].id,
+        if(rs.length===1){
+            let userToken = {
+                username,
+                id: rs[0].id,
+            }
+            let secret = 'niconiconi' // 指定密钥
+            let token = jwt.sign(userToken, secret, { expiresIn: '2h' }) // 签发token
+            ctx.body = {
+                rs,
+                token,
+                code:200
+            }
+        }else{
+            ctx.body = {
+                message:'登录失败',
+                code:201
+            }
         }
-        let secret = 'niconiconi' // 指定密钥
-        let token = jwt.sign(userToken, secret, { expiresIn: '2h' }) // 签发token
-        ctx.body = {
-            rs,
-            token
-        }
+        
     });
 
 module.exports = router1

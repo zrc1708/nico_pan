@@ -6,34 +6,47 @@
         <img src="../assets/nico.png" alt="">
         <img src="../assets/妮可云盘.png" alt="">
       </div>
-      <el-button @click="loginVisible = true">登录</el-button>
-      <el-button @click="logout">退出登录</el-button>
+      <div>
+        <el-button @click="loginVisible = true" v-if="!$store.state.username">登录</el-button>
+        <div v-else>
+          <span>欢迎你，{{$store.state.username}}</span>
+          <el-button @click="logout">退出登录</el-button>
+        </div>
+      </div>
     </el-header>
 
     <el-container>
       <!-- 侧边导航 -->
       <el-aside width="200px">
-        <el-menu default-active="1" :default-openeds="openeds" class="el-menu-vertical-demo" background-color="#f7f7f7">
-          <el-submenu index="1">
+        <el-menu  :router='true' :default-openeds="openeds" class="el-menu-vertical-demo" background-color="#f7f7f7">
+          <el-menu-item index="overview">
+            <i class="el-icon-s-order"></i>
+            <span slot="title">总览</span>
+          </el-menu-item>
+          <el-submenu index="2">
             <template slot="title">
               <i class="el-icon-folder-opened"></i>
               <span>我的文件</span>
             </template>
-            <el-menu-item index="1-1">最近上传</el-menu-item>
-            <el-menu-item index="1-2">报告</el-menu-item>
-            <el-menu-item index="1-3">图片</el-menu-item>
-            <el-menu-item index="1-4">视屏</el-menu-item>
-            <el-menu-item index="1-5">电子书</el-menu-item>
-            <el-menu-item index="1-6">其他</el-menu-item>
+            <el-menu-item index="all">全部</el-menu-item>
+            <el-menu-item index="lately">最近上传</el-menu-item>
+            <el-menu-item index="2-2">文档</el-menu-item>
+            <el-menu-item index="2-3">图片</el-menu-item>
+            <el-menu-item index="2-4">视屏</el-menu-item>
+            <el-menu-item index="2-5">电子书</el-menu-item>
+            <el-menu-item index="2-6">其他</el-menu-item>
           </el-submenu>
-          <el-menu-item index="2">
+          <el-menu-item index="3">
             <i class="el-icon-menu"></i>
             <span slot="title">我的分享</span>
           </el-menu-item>
         </el-menu>
       </el-aside>
       <!-- 主体区域 -->
-      <el-main>Main</el-main>
+      <el-main>
+        <!-- 路由占位符 -->
+        <router-view></router-view>
+      </el-main>
 
     </el-container>
     <!-- 登录对话框 -->
@@ -58,7 +71,7 @@
   export default {
     data() {
       return {
-        openeds: ['1'],
+        openeds: ['2'],
         // 控制登录对话框
         loginVisible:false,
         // 登录表单
@@ -77,16 +90,21 @@
         const {data} = await this.$http.post('checkuser',this.loginform)
         console.log(data);
         window.sessionStorage.setItem('token',data.token)
-        // if(data.rs.length===0) 
-        //   this.$message.error('登录失败')
-        // else
-        //   this.$message.success('登录成功')
+        if(data.code===201) 
+          return this.$message.error('登录失败')
+        else
+          this.$message.success('登录成功')
+        this.$store.commit('setUsernameValue',data.rs[0].username)
+        this.$store.commit('setIdValue',data.rs[0].id)
         this.loginVisible = false
       },
       // 退出登录
       async logout(){
-        const data = await this.$http.get('getuser')
-        console.log(data);
+        window.sessionStorage.clear()
+        this.$store.commit('setUsernameValue','')
+        this.$store.commit('setIdValue','')
+        this.$message('您已成功退出登录')
+        this.$router.push('/welcome')
       },
       //  重置表单
       resetLoginForm(){
@@ -113,7 +131,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    div {
+    div:nth-child(1) {
       display: flex;
       align-items: center;
       img:nth-child(1) {
@@ -123,6 +141,11 @@
       img:nth-child(2) {
         margin-left: 15px;
         height: 45px;
+      }
+    }
+    div:nth-child(2){
+      span{
+        margin-right: 10px;
       }
     }
   }
