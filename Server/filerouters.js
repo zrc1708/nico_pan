@@ -55,13 +55,15 @@ filerouters.get('/getfile', async ctx => {
         }
     }
     ctx.body={
-        arr
+        arr,
+        code:200
     }
 });
 
-//查询创建文件夹接口
-filerouters.get('/mkdir', async ctx => {
-    fs.mkdirSync("./files/第21目录");
+//创建文件夹接口
+filerouters.post('/mkdir', async ctx => {
+    const dirname = ctx.request.body.dirname; 
+    fs.mkdirSync(`./files/${dirname}`);
 
     ctx.body={
         message:'文件夹创建成功',
@@ -70,19 +72,25 @@ filerouters.get('/mkdir', async ctx => {
 });
 
 // 文件上传接口
-filerouters.post('/uploadfile', async (ctx, next) => {
+filerouters.post('/uploadfile/:path', async (ctx, next) => {
+    // 测试上传路径的获取
+    const savepath = ctx.params.path
     // 上传单个文件
     const file = ctx.request.files.file; // 获取上传文件
-
+    // console.log(file);
     // 创建可读流
     const reader = fs.createReadStream(file.path);
 
-    let filePath = path.join(__dirname, 'files') + `/${file.name}`;
+    let filePath = path.join(__dirname, savepath+'') + `/${file.name}`;
     // 创建可写流
     const upStream = fs.createWriteStream(filePath);
     // 可读流通过管道写入可写流
     reader.pipe(upStream);
-    return ctx.body = "上传成功！";
+    return ctx.body = {
+        message:"上传成功！",
+        code:200,
+        test:ctx.request.files
+        };
   });
 
 

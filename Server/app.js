@@ -11,6 +11,12 @@
     const jwt = require('jsonwebtoken')
 
     const app = new Koa(); //类似于实例化
+    app.use(koaBody({
+        multipart: true,
+        formidable: {
+            maxFileSize: 20000*1024*1024    // 设置上传文件大小最大限制，默认200M
+        }
+    }));
 
     app.keys = ['niconiconi'];
     const CONFIG = {
@@ -24,16 +30,8 @@
     };
     app.use(session(CONFIG, app));
 
-    
     app.use(Bodyparser());//解析body,也就是post传参
     app.use(cors());//解决跨域问题
-
-    app.use(koaBody({
-        multipart: true,
-        formidable: {
-            maxFileSize: 20000*1024*1024    // 设置上传文件大小最大限制，默认200M
-        }
-    }));
 
     app.use(async(ctx, next)=> {
         var token = ctx.headers.authorization;
@@ -58,6 +56,8 @@
             await next();
         }
     })
+
+    
 
     const router1 = require('./router.js')
     const filerouters = require('./filerouters.js')
