@@ -10,19 +10,20 @@ const filerouters = new Router()
 
 var getsize = function(val){
     if(val.length<=3){
-        return val+'b'
+        return val+' b'
     }else if(val.length<=6){
-        return val.substring(0,val.length-3)+'kb'
+        return val.substring(0,val.length-3)+' kb'
     }else{
-        return val.substring(0,val.length-6)+'mb'
+        return val.substring(0,val.length-6)+' mb'
     }
 }
 
 //查询所有文件
-filerouters.get('/getfile', async ctx => {
-
+filerouters.post('/getfile', async ctx => {
+    // 获取进行文件查找的路径
+    const savepath = ctx.request.body.serverpath; 
     //设置根目录
-    var root = './files';
+    var root = './'+savepath;
     var arr = [];
     //调用函数遍历根目录，同时传递 文件夹路径和对应的数组
     //请使用同步读取
@@ -40,6 +41,7 @@ filerouters.get('/getfile', async ctx => {
             var stats = fs.statSync(filePath);
             fileObj.size = getsize(stats.size+'')
             fileObj.path = filePath
+            fileObj.birthtime = stats.birthtime
             if (stats.isDirectory()) {
                 //如果是文件夹
                 fileObj.type = 'dir';
@@ -62,8 +64,8 @@ filerouters.get('/getfile', async ctx => {
 
 //创建文件夹接口
 filerouters.post('/mkdir', async ctx => {
-    const dirname = ctx.request.body.dirname; 
-    fs.mkdirSync(`./files/${dirname}`);
+    const dirname = ctx.request.body.mkdirpath; 
+    fs.mkdirSync(`./${dirname}`);
 
     ctx.body={
         message:'文件夹创建成功',
@@ -72,9 +74,9 @@ filerouters.post('/mkdir', async ctx => {
 });
 
 // 文件上传接口
-filerouters.post('/uploadfile/:path', async (ctx, next) => {
+filerouters.post('/uploadfile', async (ctx, next) => {
     // 测试上传路径的获取
-    const savepath = ctx.params.path
+    const savepath = ctx.request.body.savePath
     // 上传单个文件
     const file = ctx.request.files.file; // 获取上传文件
     // console.log(file);
@@ -89,7 +91,6 @@ filerouters.post('/uploadfile/:path', async (ctx, next) => {
     return ctx.body = {
         message:"上传成功！",
         code:200,
-        test:ctx.request.files
         };
   });
 

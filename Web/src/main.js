@@ -29,6 +29,13 @@ Vue.prototype.$http = axios
 
 Vue.config.productionTip = false
 
+// 全局日期格式化过滤器
+Vue.filter('dataFormat',function(originVal){
+  let arr = originVal.split('T')
+  let time = arr[0]+' '+arr[1].split('.')[0]
+  return time
+})
+
 Vue.use(element)
 
 new Vue({

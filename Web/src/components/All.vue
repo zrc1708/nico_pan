@@ -8,16 +8,30 @@
         </el-breadcrumb>
         <el-card>
             <el-row>
-                <el-button @click="choosefile()">选择文件</el-button>
-                <el-button @click="upload()">上传文件</el-button>
                 <el-button @click="showmkdir()">创建文件夹</el-button>
-                <input id="flieinput" type="file" ref="file"></input>
+                <el-button @click="choosefile()">选择文件</el-button>
+                <span v-if="choosedFileName">{{choosedFileName}}</span>
+                <el-button @click="upload()" :disabled="choosedFileName?false:true">上传文件</el-button>
+                <input id="flieinput" type="file" ref="file" @change="checkField($event)"></input>
             </el-row>
-            <el-table :data="filelist" style="width: 100%"  >
+            <el-row>
+                <!-- 文件路径面包屑 -->
+                <el-breadcrumb separator="/">
+                    <el-breadcrumb-item v-for="(item, index) in filePathList" 
+                    :key="index"><span @click="returndir(index)">{{item}}</span></el-breadcrumb-item>
+                </el-breadcrumb>
+            </el-row>
+            <!-- 文件列表 -->
+            <el-table :data="filelist" style="width: 100%" @row-dblclick="filedblclick" >
                 <el-table-column type="index"></el-table-column>
                 <el-table-column prop="name" label="文件名"></el-table-column>
                 <el-table-column prop="size" label="文件大小"></el-table-column>
                 <el-table-column prop="type" label="文件类型"></el-table-column>
+                <el-table-column prop="birthtime" label="创建时间">
+                    <template slot-scope="scope">
+                        {{scope.row.birthtime | dataFormat}}
+                    </template>
+                </el-table-column>
             </el-table>
         </el-card>
         <!-- 创建文件夹对话框 -->
@@ -39,41 +53,52 @@
         data() {
             return {
                 filelist: [],
-                path:'/files',
+                // 在服务器上进行文件查找的路径
+                serverpath:'files',
                 mkdirvisible:false,
+                choosedFileName:'',
                 mkdirform:{
                     dirname:''
                 }
             }
         },
+        computed: {
+            filePathList(){
+                let arr = this.serverpath.split('/')
+                arr[0]= '根目录'
+                return arr
+            }
+        },
         created() {
-            this.getFileList()
+            this.getFileList(this.serverpath)
         },
         methods: {
             // 获取文件列表
-            async getFileList() {
-                const {data} = await this.$http.get('getfile')
+            async getFileList(serverpath) {
+                const {data} = await this.$http.post(`getfile`,{serverpath})
                 if (data.code !== 200) return this.$message.error('获取文件列表失败')
                 this.filelist = data.arr
                 console.log(this.filelist);
             },
             // 创建文件夹
             async mkdir() {
-                const {data} = await this.$http.post('mkdir',this.mkdirform)
+                let mkdirpath = this.serverpath+'/'+this.mkdirform.dirname
+                const {data} = await this.$http.post('mkdir',{mkdirpath})
                 if (data.code !== 200) return this.$message.error('创建文件夹失败')
                 this.$message.success('创建文件夹成功')
-                this.getFileList()
+                this.getFileList(this.serverpath)
                 this.mkdirvisible = false
             },
             // 上传文件
             upload() {
                 let formData = new FormData();
+                formData.append('savePath', this.serverpath);
                 formData.append('file', this.$refs.file.files[0])
-                this.$http.post(`uploadfile${this.path}`, formData, {
+                this.$http.post(`uploadfile`, formData, {
                     'Content-Type': 'multipart/form-data'
                 }).then(res => {
-                    console.log(res);
-                    this.getFileList()
+                    this.getFileList(this.serverpath)
+                    this.choosedFileName = ''
                 })
             },
             // 选择上传的文件
@@ -84,17 +109,52 @@
             // 展示上传文件的对话框
             showmkdir(){
                 this.mkdirvisible = true
+            },
+            // 双击文件夹进入
+            filedblclick(row){
+                if(!row.child) return
+                this.serverpath = row.path
+                this.filelist = row.child
+            },
+            // 点击文件路径面包屑，进行跳转
+            returndir(index){
+                let path=''
+                for(let i =0;i<index+1;i++){
+                    if(i==0 && index ==0) path+='files'
+                    else if(i==0) path+='files/'
+                    else if(i==index) path+=this.filePathList[i]
+                    else path+=this.filePathList[i]+'/'
+                }
+                this.serverpath = path
+                this.getFileList(path)
+            },
+            // 监听文件上传input的改变
+            checkField(dom){
+                let arr = dom.target.value.split('\\')
+                this.choosedFileName = arr[arr.length-1]
             }
         }
     }
 </script>
 <style lang="less" scoped>
-    .el-row {
+    .el-row:nth-child(1){
         overflow: hidden;
-
+        span{
+            padding-left: 20px;
+            padding-right: 20px;
+        }
         input {
             opacity: 0;
-            transform: translateY(200px);
+            transform: translateY(-200px);
         }
+    }
+    .el-row:nth-child(2){
+        padding-top: 20px;
+        span{
+            cursor: pointer;
+        }
+    }
+    .el-table{
+        margin-top: 0;
     }
 </style>

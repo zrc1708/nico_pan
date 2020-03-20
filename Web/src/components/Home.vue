@@ -9,7 +9,7 @@
       <div>
         <el-button @click="loginVisible = true" v-if="!$store.state.username">登录</el-button>
         <div v-else>
-          <span>欢迎你，{{$store.state.username}}</span>
+          <span>欢迎，{{$store.state.username}}</span>
           <el-button @click="logout">退出登录</el-button>
         </div>
       </div>
