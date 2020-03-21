@@ -3,7 +3,7 @@ html,body,#app{
     height: 100%;
     margin: 0;
     padding: 0;
-    min-width: 1200px;
+    min-width: 1250px;
     font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
 }
 
@@ -39,12 +39,10 @@ html,body,#app{
 .el-step__title{
     font-size: 13px;
 }
-.ql-editor{
-    min-height: 300px;
-}
 .el-menu{
     border: 0;
 }
+/* 自定义按钮样式 */
 .el-button:hover{
     background-color: #f7f7f7;
     border-color: #e6e6e6;
@@ -54,4 +52,15 @@ html,body,#app{
     background-color: #f7f7f7;
     border-color: black;
     color: black;
+}
+/* 自定义表格悬浮效果 */
+.el-table--enable-row-hover .el-table__body tr:hover>td {
+    background-color: #e2f2f8!important;
+}
+tr>td{
+    padding: 10px 0!important;
+}
+.cell{
+    line-height: 30px!important;
+    padding: 0;
 }

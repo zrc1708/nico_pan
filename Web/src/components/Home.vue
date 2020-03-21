@@ -79,10 +79,16 @@
           username:'nico',
           password:'19990722'
         },
+        // 登录表单的验证规则
         loginformRules:{
 
         }
       }
+    },
+    created() {
+      let username =   window.sessionStorage.getItem('name')
+      if(!username) return
+      this.$store.commit('setUsernameValue',username)
     },
     methods: {
       // 登录
@@ -90,6 +96,7 @@
         const {data} = await this.$http.post('checkuser',this.loginform)
         console.log(data);
         window.sessionStorage.setItem('token',data.token)
+        window.sessionStorage.setItem('name',data.rs[0].username)
         if(data.code===201) 
           return this.$message.error('登录失败')
         else

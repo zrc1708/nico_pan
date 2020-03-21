@@ -94,5 +94,14 @@ filerouters.post('/uploadfile', async (ctx, next) => {
         };
   });
 
+// 文件下载接口
+filerouters.post('/download', async function (ctx) {
+    const filename = ctx.request.body.filename
+    const filepath = ctx.request.body.filepath
+    // 设置实体头（表示消息体的附加信息的头字段）,提示浏览器以文件下载的方式打开
+    // 也可以直接设置 ctx.set("Content-disposition", "attachment; filename=" + fileName);
+    ctx.attachment(filename);
+    await send(ctx, filename, { root: __dirname + '/'+filepath });
+});
 
 module.exports = filerouters
