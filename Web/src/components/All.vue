@@ -24,7 +24,7 @@
             <!-- 文件列表 -->
             <el-table :data="filelist" style="width: 100%" @row-dblclick="filedblclick" @cell-mouse-enter="filehover" @cell-mouse-leave="fileleave">
                 <el-table-column type="index"></el-table-column>
-                <el-table-column prop="name" label="文件名" width="300px">
+                <el-table-column prop="name" label="文件名" width="350px">
                     <template slot-scope="scope">
                         <img src="../assets/file_icon/文件夹.png" alt="" v-if="scope.row.type==='dir'">
                         <img src="../assets/file_icon/pdf.png" alt="" v-else-if="scope.row.type==='pdf'">
@@ -47,7 +47,15 @@
                 </el-table-column>
                 <el-table-column width="150px" >
                     <template slot-scope="scope">
-                        <i class="el-icon-download" v-show="scope.row.name===showFileDownloadButton&&scope.row.type!=='dir'" @click="download(scope.row.name)"></i>
+                        <el-tooltip class="item" effect="light" content="下载" placement="top-start" :enterable="false" :hide-after="800">
+                            <i class="el-icon-download" v-show="scope.row.name===showFileDownloadButton&&scope.row.type!=='dir'" @click="download(scope.row.name)"></i>
+                        </el-tooltip>
+                        <el-tooltip class="item" effect="light" content="重命名" placement="top-start" :enterable="false" :hide-after="800">
+                            <i class="el-icon-edit" v-show="scope.row.name===showFileDownloadButton" @click="openrename(scope.row.name,scope.row.type)"></i>    
+                        </el-tooltip>
+                        <el-tooltip class="item" effect="light" content="删除" placement="top-start" :enterable="false" :hide-after="800">
+                            <i class="el-icon-delete" v-show="scope.row.name===showFileDownloadButton" @click="openremove(scope.row.name,scope.row.type)"></i>    
+                        </el-tooltip>
                     </template>
                 </el-table-column>
             </el-table>
@@ -64,6 +72,26 @@
                 <el-button @click="mkdir()">确 定</el-button>
             </span>
         </el-dialog>
+        <!-- 重命名文件对话框 -->
+        <el-dialog title="重命名文件" :visible.sync="renamevisible" width="35%">
+            <div class="renameinputbox">
+                <span>新文件名：</span>
+                <el-input class="renameinput" v-model="renameform.newname"></el-input>
+                <span v-show="renameform.type!=='dir'">{{'.'+renameform.oldname.split('.')[1]}}</span>
+            </div>
+            <span slot="footer">
+                <el-button @click="resetrename()">取 消</el-button>
+                <el-button @click="rename()">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 删除文件对话框 -->
+        <el-dialog title="删除文件" :visible.sync="removevisible" width="35%">
+            <span>您的文件将会永久删除，是否确认？</span>
+            <span slot="footer">
+                <el-button @click="resetremove()">取 消</el-button>
+                <el-button @click="remove()">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -78,8 +106,24 @@
                 mkdirform:{
                     dirname:''
                 },
-                // 控制下载按钮的显示
-                showFileDownloadButton:''
+                // 控制按钮的显示
+                showFileDownloadButton:'',
+                // 控制重命名对话框显示
+                renamevisible:false,
+                renameform:{
+                     // 要被重命名的文件
+                    oldname:'',
+                    newname:'',
+                    type:''
+                },
+                // 控制删除文件对话框
+                removevisible:false,
+                removeform:{
+                    //  要被删除的文件名以及类型
+                    removename:'',
+                    type:''
+                },
+                
             }
         },
         computed: {
@@ -108,6 +152,7 @@
                 this.$message.success('创建文件夹成功')
                 this.getFileList(this.serverpath)
                 this.mkdirvisible = false
+                this.mkdirform.dirname = ''
             },
             // 上传文件
             upload() {
@@ -180,6 +225,52 @@
             //监听鼠标离开表格
             fileleave(){
                 this.showFileDownloadButton = ''
+            },
+            //打开重命名 
+            openrename(row,type){
+                this.renameform.newname = ''
+                this.renameform.oldname = row
+                this.renameform.type = type
+                this.renamevisible = true
+            },
+            //重命名
+            async rename(){
+                let oldname = this.serverpath+'/'+this.renameform.oldname
+                let newname
+                if(this.renameform.type==='dir'){
+                    newname = this.serverpath+'/'+this.renameform.newname
+                }else{
+                    newname = this.serverpath+'/'+this.renameform.newname+'.'+this.renameform.oldname.split('.')[1]
+                }
+                const {data} = await this.$http.post('rename',{oldname,newname})
+                if (data.code !== 200) return this.$message.error('重命名失败')
+                this.$message.success('重命名成功')
+                this.getFileList(this.serverpath)
+                this.renamevisible = false
+            } ,
+            // 取消重命名
+            resetrename(){
+                this.renamevisible = false
+            },
+            // 打开删除文件对话框
+            openremove(row,type){
+                this.removevisible = true
+                this.removeform.removename = row
+                this.removeform.type = type
+            },
+            //删除文件
+            async remove(){
+                let path = this.serverpath+'/'+this.removeform.removename
+                let type = this.removeform.type
+                const {data} = await this.$http.post('remove',{type,path})
+                if (data.code !== 200) return this.$message.error('删除失败')
+                this.$message.success('删除成功')
+                this.getFileList(this.serverpath)
+                this.removevisible = false
+            } ,
+            // 取消删除文件
+            resetremove(){
+                this.removevisible = false
             }
         }
     }
@@ -211,13 +302,37 @@
             vertical-align: middle;
             margin-right: 10px;
         }
-        i::before{
+        i:nth-child(1){
             position: absolute;
             top: 10px;
             font-size: 28px;
             color: #10a9fb;
             cursor: pointer;
         }
+        i:nth-child(2){
+            position: absolute;
+            top: 10px;
+            left: 50px;
+            font-size: 25px;
+            color: #10a9fb;
+            cursor: pointer;
+        }
+         i:nth-child(3){
+            position: absolute;
+            top: 10px;
+            left: 90px;
+            font-size: 25px;
+            color: #10a9fb;
+            cursor: pointer;
+        }
     }
-
+    .renameinputbox{
+        text-align: center;
+        .renameinput{
+            width: 70%;
+        }
+        span:nth-child(3){
+            padding-left: 10px;
+        }
+    }
 </style>

@@ -3,7 +3,7 @@ html,body,#app{
     height: 100%;
     margin: 0;
     padding: 0;
-    min-width: 1250px;
+    min-width: 1300px;
     font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
 }
 
@@ -57,10 +57,18 @@ html,body,#app{
 .el-table--enable-row-hover .el-table__body tr:hover>td {
     background-color: #e2f2f8!important;
 }
+/* 自定义表格行样式 */
 tr>td{
     padding: 10px 0!important;
 }
 .cell{
     line-height: 30px!important;
     padding: 0;
+}
+/* 自定义提示文字样式 */
+.is-light{
+    border-color: #10a9fb!important;
+}
+.popper__arrow{
+    border-top-color: #10a9fb!important;
 }

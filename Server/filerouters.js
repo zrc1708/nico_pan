@@ -8,6 +8,7 @@ const send = require('koa-send');
 
 const filerouters = new Router()
 
+//文件大小格式转换 
 var getsize = function(val){
     if(val.length<=3){
         return val+' b'
@@ -16,6 +17,55 @@ var getsize = function(val){
     }else{
         return val.substring(0,val.length-6)+' mb'
     }
+}
+// 递归删除文件夹
+function delDir(path){
+    let files = [];
+    if(fs.existsSync(path)){
+        files = fs.readdirSync(path);
+        files.forEach((file, index) => {
+            let curPath = path + "/" + file;
+            if(fs.statSync(curPath).isDirectory()){
+                delDir(curPath); //递归删除文件夹
+            } else {
+                fs.unlinkSync(curPath); //删除文件
+            }
+        });
+        fs.rmdirSync(path);
+    }
+}
+// file日期格式转换
+function getdate(val){
+    let arr = (val+'').split(' ')
+    // [ 'Sun', 'Mar', '22', '2020', '22:48:42', 'GMT+0800', '(GMT+08:00)' ]
+    // 一月Jan,二月Feb,三月Mar,四月Apr,五月May,六月Jun,七月Jul,八月Aug,九月Sept,十月Oct,十一月Nov,十二月Dec
+    // 2020-03-22 22:24:41
+    if(arr[1]==='Jan'){
+        arr[1]='01'
+    }else if(arr[1]==='Feb'){
+        arr[1]='02'
+    }else if(arr[1]==='Mar'){
+        arr[1]='03'
+    }else if(arr[1]==='Apr'){
+        arr[1]='04'
+    }else if(arr[1]==='May'){
+        arr[1]='05'
+    }else if(arr[1]==='Jun'){
+        arr[1]='06'
+    }else if(arr[1]==='Jul'){
+        arr[1]='07'
+    }else if(arr[1]==='Aug'){
+        arr[1]='08'
+    }else if(arr[1]==='Sept'){
+        arr[1]='09'
+    }else if(arr[1]==='Oct'){
+        arr[1]='10'
+    }else if(arr[1]==='Nov'){
+        arr[1]='11'
+    }else if(arr[1]==='Dec'){
+        arr[1]='12'
+    }
+    return `${arr[3]}-${arr[1]}-${arr[2]} ${arr[4]}`
 }
 
 //查询所有文件
@@ -79,7 +129,16 @@ filerouters.post('/uploadfile', async (ctx, next) => {
     const savepath = ctx.request.body.savePath
     // 上传单个文件
     const file = ctx.request.files.file; // 获取上传文件
-    // console.log(file);
+    // 将文件信息写入数据库
+    let category = file.name.split('.')[file.name.split('.').length-1]
+    let date = getdate(file.lastModifiedDate)
+    let size = getsize(file.size+'')
+    const connection = await Mysql.createConnection(mysql_nico)
+    const sql = `INSERT INTO file ( filename, path , category , size , createdate ) 
+                VALUES ( '${file.name}', './${savepath}','${category}','${size}','${date}' );`
+    console.log(sql);
+    const [rs] = await connection.query(sql);
+
     // 创建可读流
     const reader = fs.createReadStream(file.path);
 
@@ -102,6 +161,38 @@ filerouters.post('/download', async function (ctx) {
     // 也可以直接设置 ctx.set("Content-disposition", "attachment; filename=" + fileName);
     ctx.attachment(filename);
     await send(ctx, filename, { root: __dirname + '/'+filepath });
+});
+
+// 重命名文件接口
+filerouters.post('/rename', async function (ctx) {
+    const oldname = './'+ctx.request.body.oldname
+    const newname = './'+ctx.request.body.newname
+    await fs.rename(oldname,newname,(error) => {
+        if (error) {
+            throw error
+        } 
+    })
+    return ctx.body = {
+        message:"重命名成功！",
+        code:200,
+    };
+});
+
+// 删除文件接口
+filerouters.post('/remove', async function (ctx) {
+    const path = './'+ctx.request.body.path
+    const type = ctx.request.body.type
+    if(type==='dir'){
+        await delDir(path);//删除文件夹
+    }else{
+        await fs.unlink(path, (err) => {
+            if (err) throw err;
+        });
+    }
+    return ctx.body = {
+        message:"删除文件成功！",
+        code:200,
+    };
 });
 
 module.exports = filerouters

@@ -28,12 +28,12 @@
               <i class="el-icon-folder-opened"></i>
               <span>我的文件</span>
             </template>
-            <el-menu-item index="all">全部</el-menu-item>
+            <el-menu-item index="all">全部文件</el-menu-item>
             <el-menu-item index="lately">最近上传</el-menu-item>
-            <el-menu-item index="2-2">文档</el-menu-item>
+            <el-menu-item index="2-2">电子书</el-menu-item>
             <el-menu-item index="2-3">图片</el-menu-item>
             <el-menu-item index="2-4">视屏</el-menu-item>
-            <el-menu-item index="2-5">电子书</el-menu-item>
+            <el-menu-item index="2-5">文档</el-menu-item>
             <el-menu-item index="2-6">其他</el-menu-item>
           </el-submenu>
           <el-menu-item index="3">
