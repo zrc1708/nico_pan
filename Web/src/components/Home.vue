@@ -18,20 +18,20 @@
     <el-container>
       <!-- 侧边导航 -->
       <el-aside width="200px">
-        <el-menu  :router='true' :default-openeds="openeds" class="el-menu-vertical-demo" background-color="#f7f7f7">
+        <el-menu :default-active="$route.path.slice(1)" :router='true' :default-openeds="openeds" class="el-menu-vertical-demo" background-color="#f7f7f7">
           <el-menu-item index="overview">
             <i class="el-icon-s-order"></i>
             <span slot="title">总览</span>
           </el-menu-item>
-          <el-submenu index="2">
+          <el-submenu index="myfile">
             <template slot="title">
               <i class="el-icon-folder-opened"></i>
               <span>我的文件</span>
             </template>
             <el-menu-item index="all">全部文件</el-menu-item>
             <el-menu-item index="lately">最近上传</el-menu-item>
-            <el-menu-item index="2-2">电子书</el-menu-item>
-            <el-menu-item index="2-3">图片</el-menu-item>
+            <el-menu-item index="ebook">电子书</el-menu-item>
+            <el-menu-item index="picture">图片</el-menu-item>
             <el-menu-item index="2-4">视屏</el-menu-item>
             <el-menu-item index="2-5">文档</el-menu-item>
             <el-menu-item index="2-6">其他</el-menu-item>
@@ -152,7 +152,7 @@
     }
     div:nth-child(2){
       span{
-        margin-right: 10px;
+        margin-right: 20px;
       }
     }
   }

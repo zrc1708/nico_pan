@@ -4,7 +4,7 @@
         <el-breadcrumb separator-class="el-icon-arrow-right">
             <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
             <el-breadcrumb-item>我的文件</el-breadcrumb-item>
-            <el-breadcrumb-item>最近上传</el-breadcrumb-item>
+            <el-breadcrumb-item>{{title}}</el-breadcrumb-item>
         </el-breadcrumb>
         <el-card>
             <!-- 文件列表 -->
@@ -12,15 +12,15 @@
                 <el-table-column type="index"></el-table-column>
                 <el-table-column prop="name" label="文件名" width="350px">
                     <template slot-scope="scope">
-                        <img src="../assets/file_icon/文件夹.png" alt="" v-if="scope.row.type==='dir'">
-                        <img src="../assets/file_icon/pdf.png" alt="" v-else-if="scope.row.type==='pdf'">
-                        <img src="../assets/file_icon/txt.png" alt="" v-else-if="scope.row.type==='txt'">
-                        <img src="../assets/file_icon/视频.png" alt="" v-else-if="scope.row.type==='mp4'||scope.row.type==='flv'||scope.row.type==='wmv'||scope.row.type==='m4v'||scope.row.type==='rmvb'||scope.row.type==='mov'||scope.row.type==='mkv'">
-                        <img src="../assets/file_icon/word.png" alt="" v-else-if="scope.row.type==='doc'||scope.row.type==='docx'">
-                        <img src="../assets/file_icon/ppt.png" alt="" v-else-if="scope.row.type==='ppt'||scope.row.type==='pptx'">
-                        <img src="../assets/file_icon/图片.png" alt="" v-else-if="scope.row.type==='png'||scope.row.type==='jpg'||scope.row.type==='jpeg'">
-                        <img src="../assets/file_icon/压缩包.png" alt="" v-else-if="scope.row.type==='rar'||scope.row.type==='zip'">
-                        <img src="../assets/file_icon/其他.png" alt="" v-else>
+                        <img src="../../assets/file_icon/文件夹.png" alt="" v-if="scope.row.type==='dir'">
+                        <img src="../../assets/file_icon/pdf.png" alt="" v-else-if="scope.row.type==='pdf'">
+                        <img src="../../assets/file_icon/txt.png" alt="" v-else-if="scope.row.type==='txt'">
+                        <img src="../../assets/file_icon/视频.png" alt="" v-else-if="scope.row.type==='mp4'||scope.row.type==='flv'||scope.row.type==='wmv'||scope.row.type==='m4v'||scope.row.type==='rmvb'||scope.row.type==='mov'||scope.row.type==='mkv'">
+                        <img src="../../assets/file_icon/word.png" alt="" v-else-if="scope.row.type==='doc'||scope.row.type==='docx'">
+                        <img src="../../assets/file_icon/ppt.png" alt="" v-else-if="scope.row.type==='ppt'||scope.row.type==='pptx'">
+                        <img src="../../assets/file_icon/图片.png" alt="" v-else-if="scope.row.type==='png'||scope.row.type==='jpg'||scope.row.type==='jpeg'">
+                        <img src="../../assets/file_icon/压缩包.png" alt="" v-else-if="scope.row.type==='rar'||scope.row.type==='zip'">
+                        <img src="../../assets/file_icon/其他.png" alt="" v-else>
                         {{scope.row.name}}
                     </template>
                 </el-table-column>
@@ -75,6 +75,7 @@
 </template>
 <script>
     export default {
+        props: ['title', 'type'],
         data() {
             return {
                 filelist: [],
@@ -104,7 +105,8 @@
         methods: {
             // 获取文件列表
             async getFileList(number) {
-                const {data} = await this.$http.get(`getRecentlyUploadFiles/${number}`)
+                let type = this.type
+                const {data} = await this.$http.get(`getTypeFiles/${type}/${number}`)
                 if (data.code !== 200) return this.$message('登录后方可使用此功能')
                 this.filelist = data.arr
                 console.log(this.filelist);

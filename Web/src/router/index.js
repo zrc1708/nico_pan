@@ -6,6 +6,8 @@ import Welcome from '../components/Welcome.vue'
 import Overview from '../components/Overview.vue'
 import Lately from '../components/Lately.vue'
 import All from '../components/All.vue'
+import Ebook from '../components/Ebook.vue'
+import Picture from '../components/Picture.vue'
 
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css' 
@@ -19,6 +21,8 @@ const routes = [
     {path:'/overview',component:Overview},
     {path:'/lately',component:Lately},
     {path:'/all',component:All},
+    {path:'/ebook',component:Ebook},
+    {path:'/picture',component:Picture},
   ]},
 ]
 

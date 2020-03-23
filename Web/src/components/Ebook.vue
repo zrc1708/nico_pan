@@ -4,7 +4,7 @@
         <el-breadcrumb separator-class="el-icon-arrow-right">
             <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
             <el-breadcrumb-item>我的文件</el-breadcrumb-item>
-            <el-breadcrumb-item>最近上传</el-breadcrumb-item>
+            <el-breadcrumb-item>电子书</el-breadcrumb-item>
         </el-breadcrumb>
         <el-card>
             <!-- 文件列表 -->
@@ -104,7 +104,7 @@
         methods: {
             // 获取文件列表
             async getFileList(number) {
-                const {data} = await this.$http.get(`getRecentlyUploadFiles/${number}`)
+                const {data} = await this.$http.get(`getTypeFiles/ebook/${number}`)
                 if (data.code !== 200) return this.$message('登录后方可使用此功能')
                 this.filelist = data.arr
                 console.log(this.filelist);

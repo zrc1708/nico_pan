@@ -134,9 +134,8 @@ filerouters.post('/uploadfile', async (ctx, next) => {
     let date = getdate(file.lastModifiedDate)
     let size = getsize(file.size+'')
     const connection = await Mysql.createConnection(mysql_nico)
-    const sql = `INSERT INTO file ( filename, path , category , size , createdate ) 
-                VALUES ( '${file.name}', './${savepath}','${category}','${size}','${date}' );`
-    console.log(sql);
+    const sql = `INSERT INTO file ( name, path , type , size , birthtime ) 
+                VALUES ( '${file.name}', './${savepath+'/'+file.name}','${category}','${size}','${date}' );`
     const [rs] = await connection.query(sql);
 
     // 创建可读流
@@ -153,7 +152,7 @@ filerouters.post('/uploadfile', async (ctx, next) => {
         };
   });
 
-// 文件下载接口
+// 文件下载接口(文件目录不包括自身)
 filerouters.post('/download', async function (ctx) {
     const filename = ctx.request.body.filename
     const filepath = ctx.request.body.filepath
@@ -167,7 +166,15 @@ filerouters.post('/download', async function (ctx) {
 filerouters.post('/rename', async function (ctx) {
     const oldname = './'+ctx.request.body.oldname
     const newname = './'+ctx.request.body.newname
-    await fs.rename(oldname,newname,(error) => {
+    const newfilename = newname.split('/')[newname.split('/').length-1]
+
+    // 更改文件数据库状态
+    const connection = await Mysql.createConnection(mysql_nico)
+    const sql = `UPDATE file SET name = '${newfilename}' , path = '${newname} '
+                WHERE path = '${oldname}' and state = 1;`
+    const [rs] = await connection.query(sql);
+
+    await fs.rename(oldname.trim(),newname,(error) => {
         if (error) {
             throw error
         } 
@@ -182,15 +189,59 @@ filerouters.post('/rename', async function (ctx) {
 filerouters.post('/remove', async function (ctx) {
     const path = './'+ctx.request.body.path
     const type = ctx.request.body.type
+
+    // 更改文件数据库状态
+    const connection = await Mysql.createConnection(mysql_nico)
+    const sql = `UPDATE file SET state = 0 WHERE 
+                path like '%${path}%';`
+    const [rs] = await connection.query(sql);
+
     if(type==='dir'){
         await delDir(path);//删除文件夹
     }else{
-        await fs.unlink(path, (err) => {
+        await fs.unlink(path.trim(), (err) => {
             if (err) throw err;
         });
     }
     return ctx.body = {
         message:"删除文件成功！",
+        code:200,
+    };
+});
+
+// 获取最近上传的文件
+filerouters.get('/getRecentlyUploadFiles/:num', async function (ctx) {
+    let num = ctx.params.num
+    // 更改文件数据库状态
+    const connection = await Mysql.createConnection(mysql_nico)
+    const sql = `select * from file where state=1 order by id desc limit ${num}`
+    const [rs] = await connection.query(sql);
+
+    return ctx.body = {
+        arr:rs,
+        code:200,
+    };
+});
+
+// 获取根据类型查找对应的文件
+filerouters.get('/getTypeFiles/:type/:num', async function (ctx) {
+    let type = ctx.params.type
+    let num = ctx.params.num
+
+    // 更改文件数据库状态
+    const connection = await Mysql.createConnection(mysql_nico)
+    let sql
+    if(type==='ebook'){
+        sql = `select * from file where state=1 and
+         (type='pdf' or type='mobi' or type='epub') order by id desc limit ${num}`
+    }else if(type==='picture'){
+        sql = `select * from file where state=1 and
+         (type='png' or type='jpg' or type='jpeg' or type='gif') order by id desc limit ${num}`
+    }
+    const [rs] = await connection.query(sql);
+
+    return ctx.body = {
+        arr:rs,
         code:200,
     };
 });
