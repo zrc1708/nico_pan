@@ -1,6 +1,6 @@
 <template>
   <div >
-    <my-filelist title='电子书' type='ebook'></my-filelist>
+    <my-filelist title='图片' type='video'></my-filelist>
   </div>
 </template>
 

@@ -32,9 +32,10 @@
             <el-menu-item index="lately">最近上传</el-menu-item>
             <el-menu-item index="ebook">电子书</el-menu-item>
             <el-menu-item index="picture">图片</el-menu-item>
-            <el-menu-item index="2-4">视屏</el-menu-item>
-            <el-menu-item index="2-5">文档</el-menu-item>
-            <el-menu-item index="2-6">其他</el-menu-item>
+            <el-menu-item index="video">视屏</el-menu-item>
+            <el-menu-item index="document">文档</el-menu-item>
+            <el-menu-item index="other">其他</el-menu-item>
+            <el-menu-item index="search">查询</el-menu-item>
           </el-submenu>
           <el-menu-item index="3">
             <i class="el-icon-menu"></i>

@@ -8,6 +8,10 @@ import Lately from '../components/Lately.vue'
 import All from '../components/All.vue'
 import Ebook from '../components/Ebook.vue'
 import Picture from '../components/Picture.vue'
+import Video from '../components/Video.vue'
+import Document from '../components/Document'
+import Other from '../components/Other'
+import Search from  '../components/Search'
 
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css' 
@@ -23,6 +27,10 @@ const routes = [
     {path:'/all',component:All},
     {path:'/ebook',component:Ebook},
     {path:'/picture',component:Picture},
+    {path:'/video',component:Video},
+    {path:'/document',component:Document},
+    {path:'/other',component:Other},
+    {path:'/search',component:Search},
   ]},
 ]
 

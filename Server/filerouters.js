@@ -224,19 +224,32 @@ filerouters.get('/getRecentlyUploadFiles/:num', async function (ctx) {
 });
 
 // 获取根据类型查找对应的文件
-filerouters.get('/getTypeFiles/:type/:num', async function (ctx) {
+filerouters.get('/getTypeFiles/:type', async function (ctx) {
     let type = ctx.params.type
-    let num = ctx.params.num
 
-    // 更改文件数据库状态
+    // 根据不同的请求参数进行不同的sql查询
     const connection = await Mysql.createConnection(mysql_nico)
     let sql
     if(type==='ebook'){
         sql = `select * from file where state=1 and
-         (type='pdf' or type='mobi' or type='epub') order by id desc limit ${num}`
+         (type='pdf' or type='mobi' or type='epub') `
     }else if(type==='picture'){
         sql = `select * from file where state=1 and
-         (type='png' or type='jpg' or type='jpeg' or type='gif') order by id desc limit ${num}`
+         (type='png' or type='jpg' or type='jpeg' or type='gif') `
+    }else if(type==='video'){
+        sql = `select * from file where state=1 and
+         (type='mp4' or type='flv' or type='wmv' or type='m4v' or type='rmvb' or type='mov' or type='mkv') 
+         `
+    }else if(type==='document'){
+        sql = `select * from file where state=1 and
+         (type='doc' or type='docx' or type='ppt' or type='pptx' or type='xls' or type='xlsx') `
+    }else{
+        sql = `select * from file where state=1 and
+            type!='pdf' and type!='mobi' and type!='epub' and
+            type!='png' and type!='jpg' and type!='jpeg' and type!='gif' and
+            type!='mp4' and type!='flv' and type!='wmv' and type!='m4v' and type!='rmvb' and type!='mov' and type!='mkv' and
+            type!='doc' and type!='docx' and type!='ppt' and type!='pptx' and type!='xls' and type!='xlsx'
+            `
     }
     const [rs] = await connection.query(sql);
 
@@ -246,4 +259,46 @@ filerouters.get('/getTypeFiles/:type/:num', async function (ctx) {
     };
 });
 
+// 根据文件名查找
+filerouters.get('/searchFile/:name', async function (ctx) {
+    let name = ctx.params.name
+
+    const connection = await Mysql.createConnection(mysql_nico)
+    const sql = `select * from file where state=1 and name like '%${name}%'`
+    const [rs] = await connection.query(sql);
+
+    return ctx.body = {
+        arr:rs,
+        code:200,
+    };
+});
+
+// 获得文件数量数据
+filerouters.get('/getAllFileNum', async function (ctx) {
+    let arr = [] 
+    let sql = ''
+    const connection = await Mysql.createConnection(mysql_nico)
+    sql = `select COUNT(*) from file where state=1 and
+        (type='pdf' or type='mobi' or type='epub') `
+    var [rs] = await connection.query(sql);
+    arr[0] = rs[0]['COUNT(*)']
+
+    lsql = `select COUNT(*) from file where state=1 and
+    (type='png' or type='jpg' or type='jpeg' or type='gif') `
+    var [rs] = await connection.query(sql);
+    arr[1] = rs[0]['COUNT(*)']
+
+    return ctx.body = {
+        // 测试用
+        data:arr,
+        arr:[
+            {value:235, name:'视频广告'},
+            {value:274, name:'联盟广告'},
+            {value:310, name:'邮件营销'},
+            {value:335, name:'直接访问'},
+            {value:400, name:'搜索引擎'}
+        ],
+        code:200,
+    };
+});
 module.exports = filerouters
