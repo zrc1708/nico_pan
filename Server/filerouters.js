@@ -18,6 +18,15 @@ var getsize = function(val){
         return val.substring(0,val.length-6)+' mb'
     }
 }
+var getbyte = function(val){
+    if(val.substring(val.length-3)===' mb'){
+        return Number(val.substring(0,val.length-3))*1000000
+    }else if(val.substring(val.length-3)===' kb'){
+        return Number(val.substring(0,val.length-3))*1000
+    }else if(val.substring(val.length-2)===' b'){
+        return Number(val.substring(0,val.length-2))
+    }else return 0
+}
 // 递归删除文件夹
 function delDir(path){
     let files = [];
@@ -138,6 +147,10 @@ filerouters.post('/uploadfile', async (ctx, next) => {
                 VALUES ( '${file.name}', './${savepath+'/'+file.name}','${category}','${size}','${date}' );`
     const [rs] = await connection.query(sql);
 
+    connection.end(function(err){
+        //连接结束
+    })
+
     // 创建可读流
     const reader = fs.createReadStream(file.path);
 
@@ -174,6 +187,10 @@ filerouters.post('/rename', async function (ctx) {
                 WHERE path = '${oldname}' and state = 1;`
     const [rs] = await connection.query(sql);
 
+    connection.end(function(err){
+        //连接结束
+    })
+
     await fs.rename(oldname.trim(),newname,(error) => {
         if (error) {
             throw error
@@ -196,6 +213,10 @@ filerouters.post('/remove', async function (ctx) {
                 path like '%${path}%';`
     const [rs] = await connection.query(sql);
 
+    connection.end(function(err){
+        //连接结束
+    })
+
     if(type==='dir'){
         await delDir(path);//删除文件夹
     }else{
@@ -216,6 +237,10 @@ filerouters.get('/getRecentlyUploadFiles/:num', async function (ctx) {
     const connection = await Mysql.createConnection(mysql_nico)
     const sql = `select * from file where state=1 order by id desc limit ${num}`
     const [rs] = await connection.query(sql);
+
+    connection.end(function(err){
+        //连接结束
+    })
 
     return ctx.body = {
         arr:rs,
@@ -253,6 +278,10 @@ filerouters.get('/getTypeFiles/:type', async function (ctx) {
     }
     const [rs] = await connection.query(sql);
 
+    connection.end(function(err){
+        //连接结束
+    })
+
     return ctx.body = {
         arr:rs,
         code:200,
@@ -266,6 +295,10 @@ filerouters.get('/searchFile/:name', async function (ctx) {
     const connection = await Mysql.createConnection(mysql_nico)
     const sql = `select * from file where state=1 and name like '%${name}%'`
     const [rs] = await connection.query(sql);
+
+    connection.end(function(err){
+        //连接结束
+    })
 
     return ctx.body = {
         arr:rs,
@@ -283,22 +316,142 @@ filerouters.get('/getAllFileNum', async function (ctx) {
     var [rs] = await connection.query(sql);
     arr[0] = rs[0]['COUNT(*)']
 
-    lsql = `select COUNT(*) from file where state=1 and
+    sql = `select COUNT(*) from file where state=1 and
     (type='png' or type='jpg' or type='jpeg' or type='gif') `
     var [rs] = await connection.query(sql);
     arr[1] = rs[0]['COUNT(*)']
 
+    sql = `select COUNT(*) from file where state=1 and
+    (type='mp4' or type='flv' or type='wmv' or type='m4v' 
+    or type='rmvb' or type='mov' or type='mkv') `
+    var [rs] = await connection.query(sql);
+    arr[2] = rs[0]['COUNT(*)']
+
+    sql = `select COUNT(*) from file where state=1 and
+    (type='doc' or type='docx' or type='ppt' or
+     type='pptx' or type='xls' or type='xlsx') `
+    var [rs] = await connection.query(sql);
+    arr[3] = rs[0]['COUNT(*)']
+    
+    sql = `select COUNT(*) from file where state=1 and
+    type!='pdf' and type!='mobi' and type!='epub' and
+    type!='png' and type!='jpg' and type!='jpeg' and type!='gif' and
+    type!='mp4' and type!='flv' and type!='wmv' and type!='m4v' and 
+    type!='rmvb' and type!='mov' and type!='mkv' and
+    type!='doc' and type!='docx' and type!='ppt' and type!='pptx' 
+    and type!='xls' and type!='xlsx'`
+    var [rs] = await connection.query(sql);
+    arr[4] = rs[0]['COUNT(*)']
+
+    connection.end(function(err){
+        //连接结束
+    })
+
+    let max = Math.max(...arr);
+    let min = Math.min(...arr);
+
     return ctx.body = {
-        // 测试用
-        data:arr,
         arr:[
-            {value:235, name:'视频广告'},
-            {value:274, name:'联盟广告'},
-            {value:310, name:'邮件营销'},
-            {value:335, name:'直接访问'},
-            {value:400, name:'搜索引擎'}
+            {value:arr[0], name:'电子书',itemStyle: {color: '#57606f'}},
+            {value:arr[1], name:'图片',itemStyle: {color: '#2f3542'}},
+            {value:arr[2], name:'视频',itemStyle: {color: '#a4b0be'}},
+            {value:arr[3], name:'文档',itemStyle: {color: '#747d8c'}},
+            {value:arr[4], name:'其他',itemStyle: {color: '#ced6e0'}}
         ],
+        max,
+        min,
         code:200,
     };
 });
+
+// 获得文件大小数据
+filerouters.get('/getAllFileSize', async function (ctx) {
+    let arr = [0,0,0,0,0]
+    let data = []    //暂时储存查询结果的数组
+    let sql 
+
+    const connection = await Mysql.createConnection(mysql_nico)
+    sql = `select size from file where state=1 and
+        (type='pdf' or type='mobi' or type='epub') `
+    var [rs] = await connection.query(sql);
+    data[0] = rs
+
+    sql = `select size from file where state=1 and
+    (type='png' or type='jpg' or type='jpeg' or type='gif') `
+    var [rs] = await connection.query(sql);
+    data[1] = rs
+
+    sql = `select size from file where state=1 and
+    (type='mp4' or type='flv' or type='wmv' or type='m4v' 
+    or type='rmvb' or type='mov' or type='mkv') `
+    var [rs] = await connection.query(sql);
+    data[2] = rs
+
+    sql = `select size from file where state=1 and
+    (type='doc' or type='docx' or type='ppt' or
+     type='pptx' or type='xls' or type='xlsx') `
+    var [rs] = await connection.query(sql);
+    data[3] = rs
+    
+    sql = `select size from file where state=1 and
+    type!='pdf' and type!='mobi' and type!='epub' and
+    type!='png' and type!='jpg' and type!='jpeg' and type!='gif' and
+    type!='mp4' and type!='flv' and type!='wmv' and type!='m4v' and 
+    type!='rmvb' and type!='mov' and type!='mkv' and
+    type!='doc' and type!='docx' and type!='ppt' and type!='pptx' 
+    and type!='xls' and type!='xlsx'`
+    var [rs] = await connection.query(sql);
+    data[4] = rs
+
+    connection.end(function(err){
+        //连接结束
+    })
+
+    // 将获取的文件大小数据按类别相加
+    for (let index = 0; index < data.length; index++) {
+        data[index].forEach(item => {
+            arr[index]+=Number(getbyte(item.size))
+        });
+    }
+    //处理用于展示的文件大小数据 
+    let showsize=[]
+    for (let index = 0; index < arr.length; index++) {
+        showsize[index] = getsize(arr[index]+'')
+    }
+
+    let max = Math.max(...arr);
+    let min = Math.min(...arr);
+    
+    return ctx.body = {
+        arr:[
+            {value:arr[0], name:'电子书',itemStyle: {color: '#57606f'}},
+            {value:arr[1], name:'图片',itemStyle: {color: '#2f3542'}},
+            {value:arr[2], name:'视频',itemStyle: {color: '#a4b0be'}},
+            {value:arr[3], name:'文档',itemStyle: {color: '#747d8c'}},
+            {value:arr[4], name:'其他',itemStyle: {color: '#ced6e0'}}
+        ],
+        showsize,
+        max,
+        min,
+        code:200,
+    };
+});
+
+// 返回用户的注册时间
+filerouters.get('/usercreatetime', async function (ctx) {
+
+    const connection = await Mysql.createConnection(mysql_nico)
+    const sql = `select createtime from user where username = 'nico'`
+    const [rs] = await connection.query(sql);
+
+    connection.end(function(err){
+        //连接结束
+    })
+
+    return ctx.body = {
+        arr:rs,
+        code:200,
+    };
+});
+
 module.exports = filerouters
