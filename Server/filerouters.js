@@ -77,6 +77,14 @@ function getdate(val){
     return `${arr[3]}-${arr[1]}-${arr[2]} ${arr[4]}`
 }
 
+// 生成四位随机数
+function getNum(){
+    do
+        out = Math.floor(Math.random()*10000);
+    while( out < 1000 )
+    return out
+}
+
 //查询所有文件
 filerouters.post('/getfile', async ctx => {
     // 获取进行文件查找的路径
@@ -442,6 +450,60 @@ filerouters.get('/usercreatetime', async function (ctx) {
 
     const connection = await Mysql.createConnection(mysql_nico)
     const sql = `select createtime from user where username = 'nico'`
+    const [rs] = await connection.query(sql);
+
+    connection.end(function(err){
+        //连接结束
+    })
+
+    return ctx.body = {
+        arr:rs,
+        code:200,
+    };
+});
+
+// 文件分享接口,返回文件分享后的提取码
+filerouters.post('/sharefile', async function (ctx) {
+
+    let fileObj = ctx.request.body.obj
+    let filename = fileObj.filename
+    let type = fileObj.type
+    let filenpath = fileObj.filepath
+    let ctreatedate = fileObj.createdate
+    let sharedate = fileObj.sharedate
+
+    let sql
+    const connection = await Mysql.createConnection(mysql_nico)
+    sql = `select code from share where state = 1`
+    const [rs] = await connection.query(sql);
+    var num
+    if(rs.length===0){
+        num = getNum()
+    }else{
+        do
+            num = getNum()
+        while(rs.some(function(x) {
+            return x===num;
+            }))
+    }
+    sql =`INSERT INTO share ( name,type, path , createdate , lastdate , code  ) 
+    VALUES ( '${filename}','${type}', './${filenpath}','${ctreatedate}','${sharedate}','${num}' );`
+    const [result] = await connection.query(sql);
+
+    connection.end(function(err){
+        //连接结束
+    })
+    return ctx.body = {
+        num,
+        code:200,
+    };
+});
+
+// 返回用户的分享列表
+filerouters.get('/getMyShare', async function (ctx) {
+
+    const connection = await Mysql.createConnection(mysql_nico)
+    const sql = `select * from share where state = 1 order by id desc`
     const [rs] = await connection.query(sql);
 
     connection.end(function(err){

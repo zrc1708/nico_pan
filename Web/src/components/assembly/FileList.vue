@@ -31,12 +31,12 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="type" label="文件类型" width="100px"></el-table-column>
-                <el-table-column prop="birthtime" label="创建时间">
+                <el-table-column prop="birthtime" label="创建时间" width="200px">
                     <template slot-scope="scope">
                         {{scope.row.birthtime | dataFormat }}
                     </template>
                 </el-table-column>
-                <el-table-column width="150px" >
+                <el-table-column width="200px" >
                     <template slot-scope="scope">
                         <el-tooltip class="item" effect="light" content="下载" placement="top-start" :enterable="false" :hide-after="800">
                             <i class="el-icon-download" v-show="scope.row.path===showFileDownloadButton&&scope.row.type!=='dir'" @click="download(scope.row.name,scope.row.path)"></i>
@@ -46,6 +46,9 @@
                         </el-tooltip>
                         <el-tooltip class="item" effect="light" content="删除" placement="top-start" :enterable="false" :hide-after="800">
                             <i class="el-icon-delete" v-show="scope.row.path===showFileDownloadButton" @click="openremove(scope.row.path)"></i>    
+                        </el-tooltip>
+                        <el-tooltip class="item" effect="light" content="分享" placement="top-start" :enterable="false" :hide-after="800">
+                            <i class="el-icon-share" v-show="scope.row.path===showFileDownloadButton&&scope.row.type!=='dir'" @click="openshare(scope.row.name,scope.row.path,scope.row.type)"></i>    
                         </el-tooltip>
                     </template>
                 </el-table-column>
@@ -69,6 +72,27 @@
             <span slot="footer">
                 <el-button @click="resetremove()">取 消</el-button>
                 <el-button @click="remove()">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 分享文件对话框 -->
+        <el-dialog title="分享文件" :visible.sync="sharevisible" width="35%">
+            <div class="showshare" v-if="sharecode">
+                <p>您的文件已分享成功</p>
+                <p>链接：http://pan.jibei66.com/getfile，提取码：{{sharecode}}</p>
+            </div>
+            <div class="share" v-else>
+                <p>请为  <span>{{sharefile.filename}}</span>  选择分享时限</p>
+                <template>
+                    <el-radio v-model="sharefile.sharedate" label="1">1天</el-radio>
+                    <el-radio v-model="sharefile.sharedate" label="3">3天</el-radio>
+                    <el-radio v-model="sharefile.sharedate" label="7">7天</el-radio>
+                    <el-radio v-model="sharefile.sharedate" label="0">永久</el-radio>
+                </template>
+            </div>
+            <span slot="footer">
+                <el-button @click="resetshare()">取 消</el-button>
+                <el-button @click="share2()" v-if="sharecode">确 定</el-button>
+                <el-button @click="share()" v-else>确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -95,8 +119,19 @@
                 },
                 // 控制删除文件对话框
                 removevisible:false,
-                removepath:''
-                
+                removepath:'',
+                // 控制分享文件
+                sharevisible:false,
+                // 文件分享相关数据
+                sharefile:{
+                    filename:'',
+                    type:'',
+                    filepath:'',
+                    createdate:'',
+                    sharedate:'0'
+                },
+                // 提取码
+                sharecode:'',
             }
         },
         created() {
@@ -192,6 +227,31 @@
             // 取消删除文件
             resetremove(){
                 this.removevisible = false
+            },
+            // 打开分享文件对话框
+            openshare(name,path,type){
+                this.sharefile.filename = name
+                this.sharefile.type = type
+                this.sharefile.filepath = path
+                this.sharecode = ''
+                this.sharefile.createdate = this.getNowFormatDate()
+                this.sharevisible = true
+            },
+            //  取消分享文件 
+            resetshare(){
+                this.sharevisible = false
+            },
+            // 分享文件
+            async share(){
+                let obj = this.sharefile
+                const {data} = await this.$http.post('sharefile',{obj})
+                if (data.code !== 200) return this.$message.error('分享失败')
+                // this.$message.success('删除成功')
+                this.sharecode = data.num
+            },
+            // 确认提取码，关闭对话框
+            share2(){
+                this.sharevisible = false
             }
         }
     }
@@ -246,6 +306,14 @@
             color: #10a9fb;
             cursor: pointer;
         }
+        i:nth-child(4){
+            position: absolute;
+            top: 10px;
+            left: 130px;
+            font-size: 25px;
+            color: #10a9fb;
+            cursor: pointer;
+        }
     }
     .renameinputbox{
         text-align: center;
@@ -254,6 +322,16 @@
         }
         span:nth-child(3){
             padding-left: 10px;
+        }
+    }
+    .share{
+        text-align: center;
+        p{
+            margin-top: -10px;
+            color: #606266;
+        }
+        span{
+            color: black;
         }
     }
 </style>

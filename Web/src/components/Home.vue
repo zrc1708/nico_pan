@@ -37,7 +37,7 @@
             <el-menu-item index="other">其他</el-menu-item>
             <el-menu-item index="search">查询</el-menu-item>
           </el-submenu>
-          <el-menu-item index="3">
+          <el-menu-item index="myshare">
             <i class="el-icon-menu"></i>
             <span slot="title">我的分享</span>
           </el-menu-item>
