@@ -31,25 +31,29 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="code" label="提取码" width="100px"></el-table-column>
-                <!-- <el-table-column width="200px" >
+                <el-table-column label="状态" width="100px">
                     <template slot-scope="scope">
-                        <el-tooltip class="item" effect="light" content="下载" placement="top-start" :enterable="false" :hide-after="800">
-                            <i class="el-icon-download" v-show="scope.row.path===showFileDownloadButton&&scope.row.type!=='dir'" @click="download(scope.row.name,scope.row.path)"></i>
-                        </el-tooltip>
-                        <el-tooltip class="item" effect="light" content="重命名" placement="top-start" :enterable="false" :hide-after="800">
-                            <i class="el-icon-edit" v-show="scope.row.path===showFileDownloadButton" @click="openrename(scope.row.name,scope.row.type,scope.row.path)"></i>    
-                        </el-tooltip>
+                        <span v-if="Number(nowDateLast)-Number(scope.row.shareLasrDate)<=scope.row.lastdate">分享中</span>
+                        <span v-else style="color:red">已过期</span>
+                    </template>
+                </el-table-column>
+                <el-table-column width="200px" >
+                    <template slot-scope="scope">
                         <el-tooltip class="item" effect="light" content="删除" placement="top-start" :enterable="false" :hide-after="800">
-                            <i class="el-icon-delete" v-show="scope.row.path===showFileDownloadButton" @click="openremove(scope.row.path)"></i>    
-                        </el-tooltip>
-                        <el-tooltip class="item" effect="light" content="分享" placement="top-start" :enterable="false" :hide-after="800">
-                            <i class="el-icon-share" v-show="scope.row.path===showFileDownloadButton&&scope.row.type!=='dir'" @click="openshare(scope.row.name,scope.row.path)"></i>    
+                            <i class="el-icon-delete" v-show="scope.row.path===showFileDownloadButton" @click="deleteshare(scope.row.path)"></i>    
                         </el-tooltip>
                     </template>
-                </el-table-column> -->
+                </el-table-column> 
             </el-table>
         </el-card>
-        
+        <!-- 删除分享对话框 -->
+        <el-dialog title="删除文件" :visible.sync="removevisible" width="35%">
+            <span>该文件的分享将被删除，其他用户将永久无法提取该文件，是否确认？</span>
+            <span slot="footer">
+                <el-button @click="resetremove()">取 消</el-button>
+                <el-button @click="remove()">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -59,9 +63,14 @@
                 filelist: [],
                 // 控制按钮的显示
                 showFileDownloadButton:'',
+                nowDateLast:0,
+                removevisible:false,
+                removepath:''
             }
         },
         created() {
+            let nowDate = this.getNowFormatDate()
+            this.nowDateLast = this.days(nowDate)
             this.getFileList()
         },
         methods: {
@@ -70,6 +79,9 @@
                 const {data} = await this.$http.get(`getMyShare`)
                 if (data.code !== 200) return this.$message('登录后方可使用此功能')
                 this.filelist = data.arr
+                this.filelist.forEach(item=>{
+                    item.shareLasrDate = this.days(item.createdate)
+                })
                 console.log(this.filelist);
             },
             
@@ -81,7 +93,20 @@
             fileleave(){
                 this.showFileDownloadButton = ''
             },
-            
+            deleteshare(path){
+                this.removepath = path
+                this.removevisible = true
+            },
+            async remove(){
+                let path = this.removepath
+                const {data} = await this.$http.post(`removeshare`,{path})
+                this.$message.success('删除分享成功')
+                this.removevisible = false
+                this.getFileList()
+            },
+            resetremove(){
+                this.removevisible = false
+            }
             
         }
     }

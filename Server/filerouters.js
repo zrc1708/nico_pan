@@ -84,7 +84,23 @@ function getNum(){
     while( out < 1000 )
     return out
 }
-
+// 根据日期获取经过的天数
+function days(date){
+    let year = Number(date.split('-')[0])
+    let month = Number(date.split('-')[1])
+    let day = Number(date.split('-')[2])
+    var dateArr = new Array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+    var result = 0;
+    for ( var i = 0; i < month; i++) {
+        result += dateArr[i];
+    }
+    result += day;
+    //判断是否闰年
+    if (month > 1 && (year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
+        result += 1;
+    }
+    return result
+  }
 //查询所有文件
 filerouters.post('/getfile', async ctx => {
     // 获取进行文件查找的路径
@@ -468,7 +484,7 @@ filerouters.post('/sharefile', async function (ctx) {
     let fileObj = ctx.request.body.obj
     let filename = fileObj.filename
     let type = fileObj.type
-    let filenpath = fileObj.filepath
+    let filenpath = fileObj.filepath.substring(0,2)==='./'?fileObj.filepath:'./'+fileObj.filepath
     let ctreatedate = fileObj.createdate
     let sharedate = fileObj.sharedate
 
@@ -487,7 +503,7 @@ filerouters.post('/sharefile', async function (ctx) {
             }))
     }
     sql =`INSERT INTO share ( name,type, path , createdate , lastdate , code  ) 
-    VALUES ( '${filename}','${type}', './${filenpath}','${ctreatedate}','${sharedate}','${num}' );`
+    VALUES ( '${filename}','${type}', '${filenpath}','${ctreatedate}','${sharedate}','${num}' );`
     const [result] = await connection.query(sql);
 
     connection.end(function(err){
@@ -515,5 +531,52 @@ filerouters.get('/getMyShare', async function (ctx) {
         code:200,
     };
 });
+// 提取文件
+filerouters.get('/getShareFile/:code/:nowDateLast', async function (ctx) {
 
+    let code = ctx.params.code
+    let nowDateLast = ctx.params.nowDateLast
+    // 根据提取码查找文件
+    const connection = await Mysql.createConnection(mysql_nico)
+    const sql = `select * from share where state = 1 and code = '${code}' order by id desc`
+    const [rs] = await connection.query(sql);
+    if(rs.length===0) 
+        return  ctx.body = {
+            message:'提取码不存在',
+            code:222,
+        };
+    if(Number(nowDateLast)-Number(days(rs[0].createdate))>rs[0].lastdate&&rs[0].lastdate!==0)
+        return ctx.body = {
+            message:'提取码过期',
+            code:223,
+        };
+    connection.end(function(err){
+        //连接结束
+    })
+
+    return ctx.body = {
+        arr:rs,
+        message:'提取成功',
+        code:200,
+    };
+});
+
+// 删除分享
+filerouters.post('/removeshare', async function (ctx) {
+    const path = ctx.request.body.path
+
+    const connection = await Mysql.createConnection(mysql_nico)
+    const sql = `UPDATE share SET state = 0 WHERE 
+                path = '${path}';`
+    const [rs] = await connection.query(sql);
+
+    connection.end(function(err){
+        //连接结束
+    })
+
+    return ctx.body = {
+        message:"删除分享成功！",
+        code:200,
+    };
+});
 module.exports = filerouters

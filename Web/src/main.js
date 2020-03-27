@@ -13,7 +13,7 @@ import 'nprogress/nprogress'
 // 导入axios
 import axios from 'axios'
 //配置请求根路径
-axios.defaults.baseURL = 'http://127.0.0.1:8888/'
+axios.defaults.baseURL = 'http://nicopanapi.jibei66.com:6688/'
 axios.interceptors.request.use(config=>{
     // request拦截器中，展示进度条
     NProgress.start()
@@ -46,6 +46,24 @@ function getNowFormatDate() {
   return currentdate;
 }
 Vue.prototype.getNowFormatDate = getNowFormatDate
+// 根据日期获取经过的天数
+function days(date){
+  let year = Number(date.split('-')[0])
+  let month = Number(date.split('-')[1])
+  let day = Number(date.split('-')[2])
+  var dateArr = new Array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+  var result = 0;
+  for ( var i = 0; i < month; i++) {
+      result += dateArr[i];
+  }
+  result += day;
+  //判断是否闰年
+  if (month > 1 && (year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
+      result += 1;
+  }
+  return result
+}
+Vue.prototype.days = days
 
 // 全局日期格式化过滤器
 Vue.filter('dataFormat',function(originVal){

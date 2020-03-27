@@ -41,6 +41,10 @@
             <i class="el-icon-menu"></i>
             <span slot="title">我的分享</span>
           </el-menu-item>
+          <el-menu-item index="getfile">
+            <i class="el-icon-present"></i>
+            <span slot="title">提取文件</span>
+          </el-menu-item>
         </el-menu>
       </el-aside>
       <!-- 主体区域 -->

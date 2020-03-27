@@ -35,7 +35,7 @@
 
     app.use(async(ctx, next)=> {
         var token = ctx.headers.authorization;
-        if (ctx.request.url==='/checkuser') {
+        if (ctx.request.url==='/checkuser'||ctx.request.url.indexOf("/getShareFile") != -1) {
             return await next();
         }else if(token === 'null'){
             return ctx.body={

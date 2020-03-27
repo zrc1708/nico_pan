@@ -169,6 +169,8 @@ export default {
         // 使用刚指定的配置项和数据显示图表。
         myChart1.setOption(option1);
         myChart2.setOption(option2);
+        // 判断是否登录
+        if(this.allFileNum.data.length===0) return this.titleshow  = false
         this.titleshow  = true
     },
     methods: {
@@ -183,7 +185,7 @@ export default {
         // 获取文件大小总览数据
         async getAllFileSize(){
             const {data} = await this.$http.get(`getAllFileSize`)
-            if (data.code !== 200) return this.$message('登录后方可使用此功能')
+            if (data.code !== 200) return 
             this.allFileSize.data = data.arr
             this.allFileSize.max = data.max
             this.allFileSize.min = data.min
@@ -192,7 +194,7 @@ export default {
         // 获取用户注册的时间
         async getcreatetime(){
             const {data} = await this.$http.get(`usercreatetime`)
-            if (data.code !== 200) return this.$message('登录后方可使用此功能')
+            if (data.code !== 200) return 
             this.userdata.createtime= data.arr[0].createtime
 
             let nowdate = getNowFormatDate()

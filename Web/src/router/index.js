@@ -13,6 +13,7 @@ import Document from '../components/Document'
 import Other from '../components/Other'
 import Search from  '../components/Search'
 import Myshare from '../components/Myshare.vue'
+import Getfile from '../components/Getfile.vue'
 
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css' 
@@ -33,6 +34,7 @@ const routes = [
     {path:'/other',component:Other},
     {path:'/search',component:Search},
     {path:'/myshare',component:Myshare},
+    {path:'/getfile',component:Getfile},
   ]},
 ]
 
