@@ -31,7 +31,7 @@
     </div>
 </template>
 <script>
-import echarts from 'echarts'
+// import echarts from 'echarts'
 
 function getNowFormatDate() {
         var date = new Date();

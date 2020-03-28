@@ -177,7 +177,7 @@
                 const {data} = await this.$http.post(`getfile`,{serverpath})
                 if (data.code !== 200) return this.$message('登录后方可使用此功能')
                 this.filelist = data.arr
-                console.log(this.filelist);
+                // console.log(this.filelist);
             },
             // 创建文件夹
             async mkdir() {

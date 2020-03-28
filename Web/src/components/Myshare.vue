@@ -82,7 +82,7 @@
                 this.filelist.forEach(item=>{
                     item.shareLasrDate = this.days(item.createdate)
                 })
-                console.log(this.filelist);
+                // console.log(this.filelist);
             },
             
             //监听鼠标在表格悬停 

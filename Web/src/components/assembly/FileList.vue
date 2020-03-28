@@ -144,7 +144,7 @@
                 const {data} = await this.$http.get(`getTypeFiles/${type}`)
                 if (data.code !== 200) return this.$message('登录后方可使用此功能')
                 this.filelist = data.arr
-                console.log(this.filelist);
+                // console.log(this.filelist);
             },
             // 文件下载,传入文件名和文件路径
             async download(name,path){
@@ -166,9 +166,9 @@
                 　　 downloadElement.click(); //点击下载
                 　　 document.body.removeChild(downloadElement); //下载完成移除元素
                 　　 window.URL.revokeObjectURL(href); //释放掉blob对象 
-                    console.log(response);
+                    // console.log(response);
                 }).catch(function(error) {
-                    console.log(error);
+                    // console.log(error);
                     });
             },
             //监听鼠标在表格悬停 

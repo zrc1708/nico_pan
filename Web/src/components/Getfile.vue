@@ -43,7 +43,7 @@ export default {
             if(data.code===223) return this.$message.error('提取码已过期')
             if(data.code==200)  this.$message.success('提取成功')
             this.file = data.arr[0]
-            console.log(data);
+            // console.log(data);
             this.code = ''
         },
         // 文件下载,传入文件名和文件路径
@@ -61,9 +61,9 @@ export default {
                 downloadElement.click(); //点击下载
                 document.body.removeChild(downloadElement); //下载完成移除元素
                 window.URL.revokeObjectURL(href); //释放掉blob对象 
-                console.log(response);
+                // console.log(response);
             }).catch(function(error) {
-                console.log(error);
+                // console.log(error);
                 });
             },
     },
@@ -79,9 +79,6 @@ p{
         margin-left: 10px;
         margin-right: 20px;
         color:#303133
-    }
-    .dow{
-
     }
 }
 </style>

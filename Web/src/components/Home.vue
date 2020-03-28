@@ -81,8 +81,8 @@
         loginVisible:false,
         // 登录表单
         loginform:{
-          username:'nico',
-          password:'19990722'
+          username:'',
+          password:''
         },
         // 登录表单的验证规则
         loginformRules:{
@@ -99,7 +99,7 @@
       // 登录
       async login(){
         const {data} = await this.$http.post('checkuser',this.loginform)
-        console.log(data);
+        // console.log(data);
         window.sessionStorage.setItem('token',data.token)
         window.sessionStorage.setItem('name',data.rs[0].username)
         if(data.code===201) 
@@ -116,6 +116,8 @@
         this.$store.commit('setUsernameValue','')
         this.$store.commit('setIdValue','')
         this.$message('您已成功退出登录')
+        this.loginform.username = ''
+        this.loginform.password = ''
         this.$router.push('/welcome')
       },
       //  重置表单

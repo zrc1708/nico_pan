@@ -72,3 +72,6 @@ tr>td{
 .popper__arrow{
     border-top-color: #10a9fb!important;
 }
+.el-main{
+    padding-bottom: 0;
+}
