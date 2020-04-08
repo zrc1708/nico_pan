@@ -31,7 +31,8 @@
     </div>
 </template>
 <script>
-// import echarts from 'echarts'
+// 如果是线上环境，注释掉下面这行
+import echarts from 'echarts'
 
 function getNowFormatDate() {
         var date = new Date();
@@ -196,9 +197,8 @@ export default {
             const {data} = await this.$http.get(`usercreatetime`)
             if (data.code !== 200) return 
             this.userdata.createtime= data.arr[0].createtime
-
             let nowdate = getNowFormatDate()
-            let day1 =  days(nowdate.year,nowdate.month,nowdate.strDate)
+            let day1 =  days(Number(nowdate.year),Number(nowdate.month),Number(nowdate.strDate))
             let day2 = this.userdata.createtime.split('T')[0].split('-')
             let day = day1 - days(Number(day2[0]),Number(day2[1]),Number(day2[2]))
             this.userdata.day = day

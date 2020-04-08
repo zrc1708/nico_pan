@@ -82,7 +82,7 @@
         <el-dialog title="分享文件" :visible.sync="sharevisible" width="35%">
             <div class="showshare" v-if="sharecode">
                 <p>您的文件已分享成功</p>
-                <p>链接：http://pan.jibei66.com/getfile，提取码：{{sharecode}}</p>
+                <p>链接：http://pan.jibei66.com/#/getfile，提取码：{{sharecode}}</p>
             </div>
             <div class="share" v-else>
                 <p>请为  <span>{{sharefile.filename}}</span>  选择分享时限</p>
