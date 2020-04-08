@@ -32,7 +32,7 @@
 </template>
 <script>
 // 如果是线上环境，注释掉下面这行
-import echarts from 'echarts'
+// import echarts from 'echarts'
 
 function getNowFormatDate() {
         var date = new Date();

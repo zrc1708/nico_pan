@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
     <title>妮可云盘</title>
-    <% if(htmlWebpackPlugin.options.isProd){ %>
+    <!-- 线下环境注释掉cdn -->
     <!-- vue -->
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
@@ -20,7 +20,6 @@
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <!-- nprogress -->
     <script src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js"></script>
-    <% } %>
   <body>
     <noscript>
       <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>

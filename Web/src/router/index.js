@@ -1,19 +1,32 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import Home from '../components/Home.vue'
-import Welcome from '../components/Welcome.vue'
-import Overview from '../components/Overview.vue'
-import Lately from '../components/Lately.vue'
-import All from '../components/All.vue'
-import Ebook from '../components/Ebook.vue'
-import Picture from '../components/Picture.vue'
-import Video from '../components/Video.vue'
-import Document from '../components/Document'
-import Other from '../components/Other'
-import Search from  '../components/Search'
-import Myshare from '../components/Myshare.vue'
-import Getfile from '../components/Getfile.vue'
+// import Home from '../components/Home.vue'
+const Home = () => import(/* webpackChunkName: "home_wlecome" */ '../components/Home.vue')
+// import Welcome from '../components/Welcome.vue'
+const Welcome = () => import(/* webpackChunkName: "home_wlecome" */ '../components/Welcome.vue')
+// import Overview from '../components/Overview.vue'
+const Overview = () => import(/* webpackChunkName: "home_wlecome" */ '../components/Overview.vue')
+// import Lately from '../components/Lately.vue'
+const Lately = () => import(/* webpackChunkName: "main" */ '../components/Lately.vue')
+// import All from '../components/All.vue'
+const All = () => import(/* webpackChunkName: "main" */ '../components/All.vue')
+// import Ebook from '../components/Ebook.vue'
+const Ebook = () => import(/* webpackChunkName: "main" */ '../components/Ebook.vue')
+// import Picture from '../components/Picture.vue'
+const Picture = () => import(/* webpackChunkName: "main" */ '../components/Picture.vue')
+// import Video from '../components/Video.vue'
+const Video = () => import(/* webpackChunkName: "main" */ '../components/Video.vue')
+// import Document from '../components/Document'
+const Document = () => import(/* webpackChunkName: "main" */ '../components/Document')
+// import Other from '../components/Other'
+const Other = () => import(/* webpackChunkName: "main" */ '../components/Other')
+// import Search from  '../components/Search'
+const Search = () => import(/* webpackChunkName: "main" */ '../components/Search')
+// import Myshare from '../components/Myshare.vue'
+const Myshare = () => import(/* webpackChunkName: "share" */ '../components/Myshare.vue')
+// import Getfile from '../components/Getfile.vue'
+const Getfile = () => import(/* webpackChunkName: "share" */ '../components/Getfile.vue')
 
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css' 
