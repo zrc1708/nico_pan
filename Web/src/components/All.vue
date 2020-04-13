@@ -38,7 +38,11 @@
                         {{scope.row.name}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="size" label="文件大小" ></el-table-column>
+                <el-table-column prop="size" label="文件大小" >
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.type!=='dir'">{{scope.row.size}}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="type" label="文件类型" ></el-table-column>
                 <el-table-column prop="birthtime" label="创建时间" width="200px">
                     <template slot-scope="scope">

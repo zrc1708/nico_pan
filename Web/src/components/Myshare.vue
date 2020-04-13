@@ -33,7 +33,7 @@
                 <el-table-column prop="code" label="提取码" width="100px"></el-table-column>
                 <el-table-column label="状态" width="100px">
                     <template slot-scope="scope">
-                        <span v-if="Number(nowDateLast)-Number(scope.row.shareLasrDate)<=scope.row.lastdate">分享中</span>
+                        <span v-if="Number(nowDateLast)-Number(scope.row.shareLasrDate)<=scope.row.lastdate||scope.row.lastdate===0">分享中</span>
                         <span v-else style="color:red">已过期</span>
                     </template>
                 </el-table-column>
