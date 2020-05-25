@@ -40,7 +40,7 @@ html,body,#app{
     font-size: 13px;
 }
 .el-menu{
-    border: 0;
+    border: 0!important;
 }
 /* 自定义按钮样式 */
 .el-button:hover{
